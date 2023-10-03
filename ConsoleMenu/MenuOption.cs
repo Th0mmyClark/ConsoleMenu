@@ -11,8 +11,8 @@ public class MenuOption
         _onClick = onClick;
     }
 
-    public void Execute()
+    internal void Execute()
     {
-        _onClick?.Invoke();
+        _onClick.Invoke();
     }
 }

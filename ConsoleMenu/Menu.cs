@@ -2,16 +2,20 @@
 
 public class Menu
 {
-    private int _selectedElement = 0;
+    private int _selectedElement;
     private bool _isActive = true;
 
-    private List<MenuOption> _options = new();
-    private Dictionary<InputAction, ConsoleKey> _keyBindings;
-    private Dictionary<InputAction, Action> _actionsBinding;
+    private readonly List<MenuOption> _options = new();
+    private readonly Dictionary<InputAction, ConsoleKey> _keyBindings;
+    private readonly Dictionary<InputAction, Action> _actionsBinding;
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public ConsoleColor DefaultBackgroundColor { get; set; } = ConsoleColor.Black;
+    // ReSharper disable once MemberCanBePrivate.Global
     public ConsoleColor DefaultTextColor { get; set; } = ConsoleColor.White;
+    // ReSharper disable once MemberCanBePrivate.Global
     public ConsoleColor SelectedBackgroundColor { get; set; } = ConsoleColor.White;
+    // ReSharper disable once MemberCanBePrivate.Global
     public ConsoleColor SelectedTextColor { get; set; } = ConsoleColor.Black;
 
     public Menu()
@@ -46,6 +50,12 @@ public class Menu
     {
         var option = new MenuOption(header, onClick);
 
+        _options.Add(option);
+        return this;
+    }
+
+    public Menu AddOption(MenuOption option)
+    {
         _options.Add(option);
         return this;
     }
@@ -85,7 +95,7 @@ public class Menu
         }
     }
 
-    public void StopLoop() { _isActive = false; }
+    private void StopLoop() { _isActive = false; }
 
     private void Draw()
     {
