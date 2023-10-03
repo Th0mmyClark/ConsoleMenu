@@ -25,6 +25,14 @@ public class Menu
         _options.Add(option);
         return this;
     }
+    
+    public Menu AddOption(string header)
+    {
+        var option = new MenuOption(header, () => { });
+
+        _options.Add(option);
+        return this;
+    }
 
     public Menu AddOption(MenuOption option)
     {

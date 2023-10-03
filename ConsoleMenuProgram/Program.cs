@@ -6,8 +6,8 @@ public class Program
     {
         var menu = new Menu();
 
-        menu.AddOption("Hello", () => { })
-            .AddOption("This is ConsoleMenu", () => { })
+        menu.AddOption("Hello")
+            .AddOption("This is ConsoleMenu")
             .AddExitOption("Exit")
             .Configure()
             .SetCursorVisible(false)
