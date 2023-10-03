@@ -5,40 +5,12 @@ public class Menu
     private int _selectedElement;
     private bool _isActive = true;
 
+    private readonly MenuConfiguration _configuration;
     private readonly List<MenuOption> _options = new();
-    private readonly Dictionary<InputAction, ConsoleKey> _keyBindings;
-    private readonly Dictionary<InputAction, Action> _actionsBinding;
-
-    // ReSharper disable once MemberCanBePrivate.Global
-    public ConsoleColor DefaultBackgroundColor { get; set; } = ConsoleColor.Black;
-    // ReSharper disable once MemberCanBePrivate.Global
-    public ConsoleColor DefaultTextColor { get; set; } = ConsoleColor.White;
-    // ReSharper disable once MemberCanBePrivate.Global
-    public ConsoleColor SelectedBackgroundColor { get; set; } = ConsoleColor.White;
-    // ReSharper disable once MemberCanBePrivate.Global
-    public ConsoleColor SelectedTextColor { get; set; } = ConsoleColor.Black;
 
     public Menu()
     {
-        _keyBindings = new()
-        {
-            { InputAction.MoveUp, ConsoleKey.UpArrow },
-            { InputAction.MoveDown, ConsoleKey.DownArrow },
-            { InputAction.Execute, ConsoleKey.Enter }
-        };
-
-        _actionsBinding = new()
-        {
-            { InputAction.MoveUp, OnMoveUpPressed },
-            { InputAction.MoveDown, OnMoveDownPressed },
-            { InputAction.Execute, OnExecutePressed }
-        };
-    }
-
-    public Menu SetCursorVisible(bool isVisible)
-    {
-        Console.CursorVisible = isVisible;
-        return this;
+        _configuration = new MenuConfiguration(OnMoveUpPressed, OnMoveDownPressed, OnExecutePressed);
     }
 
     public Menu AddExitOption(string header)
@@ -66,17 +38,7 @@ public class Menu
         return this;
     }
 
-    public Menu BindKey(ConsoleKey key, InputAction action)
-    {
-        _keyBindings[action] = key;
-        return this;
-    }
-
-    public Menu BindCallback(InputAction action, Action callback)
-    {
-        _actionsBinding[action] = callback;
-        return this;
-    }
+    public MenuConfiguration Configure() => _configuration;
 
     public void Loop()
     {
@@ -85,11 +47,11 @@ public class Menu
             Draw();
             var key = GetInput();
 
-            if (!_keyBindings.ContainsValue(key))
+            if (!_configuration.ContainsKeyInBindings(key))
                 continue;
 
-            var act = GetInputActionByKey(key);
-            var callback = _actionsBinding[act];
+            var act = _configuration.GetInputActionByKey(key);
+            var callback = _configuration.ActionsBinding[act];
 
             callback();
         }
@@ -104,8 +66,21 @@ public class Menu
         for (var i = 0; i < _options.Count; i++)
         {
             if (i == _selectedElement)
+            {
                 SetColor(true);
-
+                
+                if(_configuration.UsePointer)
+                    Console.Write(_configuration.PointerStyle);
+            }
+            else
+            {
+                if(_configuration is { UsePointer: true, ShiftAllItems: true })
+                    Console.Write(new string(' ', _configuration.PointerStyle.Length));
+            }
+            
+            if(_configuration.UseNumeration)
+                Console.Write(_configuration.NumerationFormat, i + _configuration.NumerationStartIndex);
+            
             Console.WriteLine(_options[i].Header);
             SetColor(false);
         }
@@ -113,16 +88,11 @@ public class Menu
 
     private void SetColor(bool isSelected)
     {
-        Console.BackgroundColor = isSelected ? SelectedBackgroundColor : DefaultBackgroundColor;
-        Console.ForegroundColor = isSelected ? SelectedTextColor : DefaultTextColor;
+        Console.BackgroundColor = isSelected ? _configuration.SelectedBackgroundColor : _configuration.DefaultBackgroundColor;
+        Console.ForegroundColor = isSelected ? _configuration.SelectedTextColor : _configuration.DefaultTextColor;
     }
 
     private ConsoleKey GetInput() => Console.ReadKey(false).Key;
-
-    private InputAction GetInputActionByKey(ConsoleKey key)
-    {
-        return _keyBindings.Keys.ToList()[_keyBindings.Values.ToList().IndexOf(key)];
-    }
 
     private void OnMoveUpPressed()
     {

@@ -9,7 +9,12 @@ public class Program
         menu.AddOption("Hello", () => { })
             .AddOption("This is ConsoleMenu", () => { })
             .AddExitOption("Exit")
+            .Configure()
             .SetCursorVisible(false)
-            .Loop();
+            .SetUsePointer(true)
+            .SetUseNumeration(true)
+            .SetNumerationStartIndex(1);
+
+        menu.Loop();
     }
 }
